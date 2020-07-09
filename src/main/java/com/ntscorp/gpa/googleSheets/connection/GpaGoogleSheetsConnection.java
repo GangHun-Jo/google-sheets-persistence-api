@@ -21,14 +21,14 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 
 @Component
-public class SefGoogleSheetsConnection implements GoogleSheetsConnection{
+public class GpaGoogleSheetsConnection implements GoogleSheetsConnection{
 
 	private final Sheets sheets;
 	@Value("${spread.sheet.id}")
 	private String SPREAD_SHEET_ID;
 	private final String GOOGLE_AUTH_KEY_PATH = "key.json";
 
-	public SefGoogleSheetsConnection() {
+	public GpaGoogleSheetsConnection() {
 		try {
 			HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -53,7 +53,7 @@ public class SefGoogleSheetsConnection implements GoogleSheetsConnection{
 				.get(SPREAD_SHEET_ID, range);
 			return request.execute().getValues();
 		} catch (GoogleJsonResponseException exception) {
-			throw new IllegalArgumentException("잘못된 range 입니다:[" + range + "]");
+			throw new IllegalArgumentException("잘못된 range 입니다:[" + range + "]",exception);
 		} catch (IOException ioException) {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
 		}
