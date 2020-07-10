@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,13 +27,14 @@ import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 public abstract class GoogleSheetsRepository<T> {
 
 	@Autowired
-	private GoogleSheetsConnection sefGoogleSheetsConnection;
+	private GoogleSheetsConnection gpaGoogleSheetsConnection;
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	private final Class<T> entityClass;
 	private List<T> allList;
 	private Map<String, Integer> columnMap;
+	private final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	public GoogleSheetsRepository() {
 		// Generics의 type eraser를 보완하기 위해 런타임에도 클래스정보 저장
@@ -44,7 +46,7 @@ public abstract class GoogleSheetsRepository<T> {
 	@PostConstruct
 	private void initBean() {
 		// DI 이후에 sheet 하나를 얻어와서 공유하도록 한다.
-		List<List<Object>> sheet = sefGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
 		updateColumnIndexMap(sheet);
 
 		allList = new ArrayList<>();
@@ -73,6 +75,26 @@ public abstract class GoogleSheetsRepository<T> {
 		return allList;
 	}
 
+	public void add(T data) {
+		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
+		for (Field field : entityClass.getDeclaredFields()) {
+			if (columnMap.get(field.getName()) == null) {
+				continue;
+			}
+			Method getter = getGetter(field.getName());
+			try {
+				Object value = getter.invoke(data, new Object[]{});
+				if (field.getType() == LocalDateTime.class) {
+					value = ((LocalDateTime) getter.invoke(data, new Object[]{})).format(DATE_TIME_FORMAT);
+				}
+				row.set(columnMap.get(field.getName()), value);
+			} catch (IllegalAccessException | InvocationTargetException exception) {
+				throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
+			}
+		}
+		gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
+	}
+
 	private T parseToEntity(List<Object> row) {
 
 		T instance;
@@ -92,13 +114,9 @@ public abstract class GoogleSheetsRepository<T> {
 			}
 		}
 		return instance;
-
-
 	}
 
 	private void setField(T instance, Field field, Object value) {
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
 		try {
 			Method setter = this.getSetter(field);
 
@@ -106,7 +124,7 @@ public abstract class GoogleSheetsRepository<T> {
 				setter.invoke(instance, Integer.parseInt((String) value));
 			} else if (field.getType() == LocalDateTime.class) {
 				setter.invoke(instance, LocalDateTime.parse(
-					(String) value, dateTimeFormatter));
+					(String) value, DATE_TIME_FORMAT));
 			} else if (field.getType() == String.class) {
 				setter.invoke(instance, value);
 			}
@@ -116,7 +134,7 @@ public abstract class GoogleSheetsRepository<T> {
 			throw new SheetDataFormatException("Integer로 parse할 수 없습니다[" + field + "]", exception);
 		} catch (DateTimeParseException exception) {
 			throw new SheetDataFormatException(
-				"[" + field + "]LocalDateTime으로 parse할 수 없습니다[format:" + dateTimeFormatter + "]", exception);
+				"[" + field + "]LocalDateTime으로 parse할 수 없습니다[format:" + DATE_TIME_FORMAT + "]", exception);
 		}
 	}
 
@@ -163,6 +181,15 @@ public abstract class GoogleSheetsRepository<T> {
 		} catch (NoSuchMethodException exception) {
 			throw new SheetDataMappingException(
 				entityClass + "생성자 혹은 Setter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
+		}
+	}
+
+	private Method getGetter(String fieldName) {
+		try {
+			String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+			return entityClass.getMethod(getterName);
+		} catch (NoSuchMethodException exception) {
+			throw new SheetDataMappingException(entityClass + " Getter의 이름이나 파라미터가 맞지 않습니다. ", exception);
 		}
 	}
 
