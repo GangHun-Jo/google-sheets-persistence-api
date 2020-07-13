@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.stereotype.Repository;
 
+import com.ntscorp.gpa.googleSheets.GPAEntity;
 import com.ntscorp.gpa.googleSheets.GoogleSheetsRepository;
 import com.ntscorp.gpa.googleSheets.LeftJoin;
 
@@ -13,8 +14,7 @@ import com.ntscorp.gpa.googleSheets.LeftJoin;
 @TestConfiguration
 public class TestConfig {
 
-	public static class Employee {
-		private int id;
+	public static class Employee extends GPAEntity {
 		private String name;
 		private int age;
 		private LocalDateTime birthday;
@@ -23,14 +23,6 @@ public class TestConfig {
 
 		public Employee() {
 			super();
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public void setId(int id) {
-			this.id = id;
 		}
 
 		public String getName() {
@@ -67,26 +59,17 @@ public class TestConfig {
 
 		@Override
 		public String toString() {
-			return String.join(" ", Integer.toString(id), name, Integer.toString(age), birthday.toString(), assetList.toString());
+			return String.join(" ", name, Integer.toString(age), birthday.toString(), assetList.toString());
 		}
 	}
 
-	public static class Asset {
-		private int id;
+	public static class Asset extends GPAEntity {
 		private int employeeId;
 		private String name;
 		private LocalDateTime purchaseDateTime;
 
 		public Asset() {
 			super();
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		public void setId(int id) {
-			this.id = id;
 		}
 
 		public int getEmployeeId() {
@@ -115,7 +98,7 @@ public class TestConfig {
 
 		@Override
 		public String toString() {
-			return String.join(" ", Integer.toString(id), name, purchaseDateTime.toString());
+			return String.join(" ", name, purchaseDateTime.toString());
 		}
 	}
 

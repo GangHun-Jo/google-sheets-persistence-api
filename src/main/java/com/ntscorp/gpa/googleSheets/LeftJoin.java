@@ -10,6 +10,7 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface LeftJoin {
+	//TODO : joinColumn이나 targetClass 잘못들어갔을 때 예외처리
 	String joinColumn();
 
 	Class<?> targetClass();

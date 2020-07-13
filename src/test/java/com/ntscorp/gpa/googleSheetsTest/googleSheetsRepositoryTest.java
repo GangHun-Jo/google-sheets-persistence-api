@@ -28,8 +28,12 @@ public class googleSheetsRepositoryTest {
 		Employee employee = new Employee();
 		employee.setAge(26);
 		employee.setBirthday(LocalDateTime.now());
-		employee.setId(5);
 		employee.setName("조강훈3");
 		employeeRepository.add(employee);
+	}
+
+	@Test
+	void getByRowNumTest() {
+		System.out.println(employeeRepository.getByRowNum(2));
 	}
 }

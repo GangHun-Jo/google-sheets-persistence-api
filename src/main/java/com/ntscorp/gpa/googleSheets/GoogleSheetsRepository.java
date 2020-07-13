@@ -49,6 +49,9 @@ public abstract class GoogleSheetsRepository<T> {
 
 	@PostConstruct
 	private void initBean() {
+		if (entityClass.getSuperclass() != GPAEntity.class) {
+			throw new SheetDataMappingException(entityClass + " 해당 엔티티가 GPAEntity를 상속해야 합니다.");
+		}
 		// DI 이후에 sheet 하나를 얻어와서 공유하도록 한다.
 		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
 		updateColumnIndexMap(sheet);
@@ -56,7 +59,7 @@ public abstract class GoogleSheetsRepository<T> {
 		allList = new ArrayList<>();
 		for (int rowNum = 1; rowNum < sheet.size(); rowNum++) {
 			try {
-				T instance = parseToEntity(sheet.get(rowNum));
+				T instance = parseToEntity(sheet.get(rowNum), rowNum + 1);
 				allList.add(instance);
 			} catch (SheetDataFormatException | IndexOutOfBoundsException exception) {
 				logger.warn("해당 row는 엔티티 클래스로 parse에 실패하였습니다" + sheet.get(rowNum) + "rowNum:" + rowNum);
@@ -74,14 +77,16 @@ public abstract class GoogleSheetsRepository<T> {
 		} catch (IndexOutOfBoundsException exception) {
 			throw new SheetDataMappingException("시트에 column 헤더가 존재하지 않습니다.", exception);
 		}
-
-		if (columnMap.get("id") == null) {
-			throw new SheetDataMappingException("시트 column 헤더에 id가 존재하지 않습니다.");
-		}
 	}
 
 	public List<T> getAll() {
 		return allList;
+	}
+
+	public T getByRowNum(int rowNum) {
+		return parseToEntity(
+			gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum).get(0), rowNum
+		);
 	}
 
 	public void add(T data) {
@@ -104,7 +109,7 @@ public abstract class GoogleSheetsRepository<T> {
 		gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
 	}
 
-	private T parseToEntity(List<Object> row) {
+	private T parseToEntity(List<Object> row, int rowNum) {
 
 		T instance;
 		try {
@@ -117,7 +122,8 @@ public abstract class GoogleSheetsRepository<T> {
 
 		for (Field field : entityClass.getDeclaredFields()) {
 			if (field.getAnnotation(LeftJoin.class) != null) {
-				leftJoin(instance, field, Integer.parseInt((String) row.get(columnMap.get("id"))));
+				// TODO : id 대신 rowNum, rowNum을 어떻게 가져올 것인가
+				leftJoin(instance, field, rowNum);
 			} else if (columnMap.get(field.getName()) != null && columnMap.get(field.getName()) < row.size()) {
 				setField(instance, field, row.get(columnMap.get(field.getName())));
 			}
@@ -147,7 +153,7 @@ public abstract class GoogleSheetsRepository<T> {
 		}
 	}
 
-	private void leftJoin(T instance, Field field, int id) {
+	private void leftJoin(T instance, Field field, int rowNum) {
 
 		LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
 		if (leftJoin == null || field.getType() != List.class) {
@@ -158,7 +164,7 @@ public abstract class GoogleSheetsRepository<T> {
 			GoogleSheetsRepository<?> joinRepository =
 				(GoogleSheetsRepository<?>) applicationContext.getBean(getRepositoryName(leftJoin.targetClass()));
 			List<?> list = joinRepository.getAll().stream()
-				.filter(joinElement -> getJoinColumnId(joinElement, leftJoin.joinColumn()) == id)
+				.filter(joinElement -> getJoinColumnNum(joinElement, leftJoin.joinColumn()) == rowNum)
 				.collect(Collectors.toList());
 
 			Method setter = getSetter(field);
@@ -172,7 +178,7 @@ public abstract class GoogleSheetsRepository<T> {
 		}
 	}
 
-	private int getJoinColumnId(Object joinElement, String joinColumn) {
+	private int getJoinColumnNum(Object joinElement, String joinColumn) {
 		try {
 			Method getter = getGetter(joinElement.getClass(), joinColumn);
 			return (int) getter.invoke(joinElement, new Object[]{});
