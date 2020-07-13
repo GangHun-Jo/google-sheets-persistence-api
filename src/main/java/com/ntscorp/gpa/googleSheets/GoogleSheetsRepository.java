@@ -87,7 +87,7 @@ public abstract class GoogleSheetsRepository<T> {
 				if (field.getType() == LocalDateTime.class) {
 					value = ((LocalDateTime) getter.invoke(data, new Object[]{})).format(DATE_TIME_FORMAT);
 				}
-				row.set(columnMap.get(field.getName()), value);
+				row.set(columnMap.get(field.getName()), value != null ? value : "");
 			} catch (IllegalAccessException | InvocationTargetException exception) {
 				throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
 			}
