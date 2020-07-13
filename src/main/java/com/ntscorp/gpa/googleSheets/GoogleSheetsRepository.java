@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -30,6 +32,8 @@ public abstract class GoogleSheetsRepository<T> {
 	private GoogleSheetsConnection gpaGoogleSheetsConnection;
 	@Autowired
 	private ApplicationContext applicationContext;
+
+	private final Logger logger = LoggerFactory.getLogger(GoogleSheetsRepository.class);
 
 	private final Class<T> entityClass;
 	private List<T> allList;
@@ -51,7 +55,12 @@ public abstract class GoogleSheetsRepository<T> {
 
 		allList = new ArrayList<>();
 		for (int rowNum = 1; rowNum < sheet.size(); rowNum++) {
-			allList.add(parseToEntity(sheet.get(rowNum)));
+			try {
+				T instance = parseToEntity(sheet.get(rowNum));
+				allList.add(instance);
+			} catch (SheetDataFormatException | IndexOutOfBoundsException exception) {
+				logger.warn("해당 row는 엔티티 클래스로 parse에 실패하였습니다" + sheet.get(rowNum) + "rowNum:" + rowNum);
+			}
 		}
 	}
 
