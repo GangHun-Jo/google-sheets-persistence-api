@@ -77,4 +77,19 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
 		}
 	}
+
+	@Override
+	public void update(String range, List<Object> data) {
+		ValueRange valueRange = new ValueRange();
+		valueRange.setValues(Arrays.asList(data));
+
+		try {
+			// range에 데이터가 없으면 append랑 같은 기
+			Sheets.Spreadsheets.Values.Update request = sheets.spreadsheets().values().update(SPREAD_SHEET_ID, range, valueRange);
+			request.setValueInputOption("USER_ENTERED");
+			request.execute();
+		} catch (IOException ioException) {
+			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
+		}
+	}
 }

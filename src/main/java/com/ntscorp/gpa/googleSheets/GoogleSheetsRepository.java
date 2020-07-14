@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ import com.ntscorp.gpa.exception.SheetDataFormatException;
 import com.ntscorp.gpa.exception.SheetDataMappingException;
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 
-public abstract class GoogleSheetsRepository<T> {
+public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 
 	@Autowired
 	private GoogleSheetsConnection gpaGoogleSheetsConnection;
@@ -91,7 +92,7 @@ public abstract class GoogleSheetsRepository<T> {
 
 	public void add(T data) {
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
-		for (Field field : entityClass.getDeclaredFields()) {
+		for (Field field : getAllFields()) {
 			if (columnMap.get(field.getName()) == null) {
 				continue;
 			}
@@ -109,6 +110,31 @@ public abstract class GoogleSheetsRepository<T> {
 		gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
 	}
 
+	public void update(T data) {
+		int rowNum = -1;
+		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
+		for (Field field : getAllFields()) {
+			if (columnMap.get(field.getName()) == null && !field.getName().equals("rowNum")) {
+				continue;
+			}
+			Method getter = getGetter(field.getName());
+			try {
+				Object value = getter.invoke(data, new Object[]{});
+				if (field.getType() == LocalDateTime.class) {
+					value = ((LocalDateTime) getter.invoke(data, new Object[]{})).format(DATE_TIME_FORMAT);
+				} else if (field.getName().equals("rowNum")) {
+					rowNum = (int) value;
+					continue;
+				}
+				row.set(columnMap.get(field.getName()), value != null ? value : "");
+			} catch (IllegalAccessException | InvocationTargetException exception) {
+				throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
+			}
+		}
+		gpaGoogleSheetsConnection.update(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum, row);
+	}
+
+	// TODO : parseToEntity에 rowNum이 있는게 맞나
 	private T parseToEntity(List<Object> row, int rowNum) {
 
 		T instance;
@@ -128,6 +154,12 @@ public abstract class GoogleSheetsRepository<T> {
 				setField(instance, field, row.get(columnMap.get(field.getName())));
 			}
 		}
+
+		try {
+			setField(instance, entityClass.getSuperclass().getDeclaredField("rowNum"), rowNum);
+		} catch (NoSuchFieldException exception) {
+			throw new SheetDataMappingException(entityClass + " rowNum 필드가 존재하지 않습니다.", exception);
+		}
 		return instance;
 	}
 
@@ -136,7 +168,7 @@ public abstract class GoogleSheetsRepository<T> {
 			Method setter = this.getSetter(field);
 
 			if (field.getType() == int.class) {
-				setter.invoke(instance, Integer.parseInt((String) value));
+				setter.invoke(instance, Integer.parseInt(value.toString()));
 			} else if (field.getType() == LocalDateTime.class) {
 				setter.invoke(instance, LocalDateTime.parse(
 					(String) value, DATE_TIME_FORMAT));
@@ -186,6 +218,14 @@ public abstract class GoogleSheetsRepository<T> {
 		} catch (IllegalAccessException | InvocationTargetException exception) {
 			throw new SheetDataMappingException(joinElement.getClass() + " Getter의 이름이나 파라미터가 맞지 않습니다. ", exception);
 		}
+	}
+
+	private List<Field> getAllFields() {
+		List<Field> fieldList = new ArrayList<>();
+		for (Class<?> c = entityClass; c != null; c = c.getSuperclass()) {
+			fieldList.addAll(Arrays.asList(c.getDeclaredFields()));
+		}
+		return fieldList;
 	}
 
 	private Method getSetter(Field field) {

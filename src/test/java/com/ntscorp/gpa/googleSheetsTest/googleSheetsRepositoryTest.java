@@ -36,4 +36,11 @@ public class googleSheetsRepositoryTest {
 	void getByRowNumTest() {
 		System.out.println(employeeRepository.getByRowNum(2));
 	}
+
+	@Test
+	void updateTest() {
+		Employee employee = employeeRepository.getByRowNum(2);
+		employee.setName("changed");
+		employeeRepository.update(employee);
+	}
 }

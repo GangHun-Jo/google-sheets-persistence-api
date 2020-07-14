@@ -5,6 +5,7 @@ public class SheetDataFormatException extends RuntimeException {
 		super(msg);
 		super.initCause(cause);
 	}
+
 	public SheetDataFormatException(String msg) {
 		super(msg);
 	}

@@ -5,6 +5,7 @@ public class SheetDataMappingException extends RuntimeException {
 		super(msg);
 		super.initCause(cause);
 	}
+
 	public SheetDataMappingException(String msg) {
 		super(msg);
 	}

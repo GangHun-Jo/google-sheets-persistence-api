@@ -5,6 +5,7 @@ public class GoogleSheetConnectionException extends RuntimeException {
 		super(msg);
 		super.initCause(cause);
 	}
+
 	public GoogleSheetConnectionException(String msg) {
 		super(msg);
 	}
