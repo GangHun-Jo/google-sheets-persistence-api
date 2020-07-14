@@ -64,7 +64,7 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 	}
 
 	@Override
-	public void add(String sheetName, List<Object> data) {
+	public int add(String sheetName, List<Object> data) {
 		ValueRange valueRange = new ValueRange();
 		valueRange.setValues(Arrays.asList(data));
 
@@ -73,14 +73,14 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 			Sheets.Spreadsheets.Values.Append request = sheets.spreadsheets().values().append(SPREAD_SHEET_ID, sheetName, valueRange);
 			request.setValueInputOption("USER_ENTERED");
 			request.setInsertDataOption("INSERT_ROWS");
-			request.execute();
+			return getUpdatedRowNum(request.execute().getUpdates().getUpdatedRange());
 		} catch (IOException ioException) {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
 		}
 	}
 
 	@Override
-	public void update(String range, List<Object> data) {
+	public int update(String range, List<Object> data) {
 		ValueRange valueRange = new ValueRange();
 		valueRange.setValues(Arrays.asList(data));
 
@@ -89,6 +89,7 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 			Sheets.Spreadsheets.Values.Update request = sheets.spreadsheets().values().update(SPREAD_SHEET_ID, range, valueRange);
 			request.setValueInputOption("USER_ENTERED");
 			request.execute();
+			return getUpdatedRowNum(request.execute().getUpdatedRange());
 		} catch (IOException ioException) {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
 		}
@@ -103,5 +104,10 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 		} catch (IOException ioException) {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
 		}
+	}
+
+	private int getUpdatedRowNum(String range) {
+		// TODO: range의 컬럼에 숫자가 들어올 경우가 있나
+		return Integer.parseInt(range.split(":")[1].replaceAll("[^0-9]", ""));
 	}
 }

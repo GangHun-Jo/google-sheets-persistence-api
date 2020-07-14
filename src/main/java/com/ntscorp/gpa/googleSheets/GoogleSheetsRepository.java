@@ -107,14 +107,34 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 				throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
 			}
 		}
-		gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
+
+		int insertRowNum = gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
+		for (Field field : getAllFields()) {
+			LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
+			if (leftJoin == null) {
+				continue;
+			}
+
+			Method getter = getGetter(field.getName());
+			try {
+				List<GPAEntity> list = (List<GPAEntity>) getter.invoke(data, new Object[]{});
+				GoogleSheetsRepository<GPAEntity> joinRepository =
+					(GoogleSheetsRepository<GPAEntity>) applicationContext.getBean(getRepositoryName(leftJoin.targetClass()));
+				for (GPAEntity joinElement : list) {
+					Method setJoinColumnValue = getSetter(leftJoin.targetClass(), leftJoin.targetClass().getDeclaredField(leftJoin.joinColumn()));
+					setJoinColumnValue.invoke(joinElement, insertRowNum);
+					joinRepository.add(joinElement);
+				}
+			} catch (IllegalAccessException | InvocationTargetException | NoSuchFieldException exception) {
+				throw new SheetDataMappingException("연관관계 매핑에 실패하였습니다.", exception);
+			}
+		}
 	}
 
 	public void update(T data) {
-		int rowNum = -1;
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
 		for (Field field : getAllFields()) {
-			if (columnMap.get(field.getName()) == null && !field.getName().equals("rowNum")) {
+			if (columnMap.get(field.getName()) == null || field.getName().equals("rowNum")) {
 				continue;
 			}
 			Method getter = getGetter(field.getName());
@@ -122,16 +142,35 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 				Object value = getter.invoke(data, new Object[]{});
 				if (field.getType() == LocalDateTime.class) {
 					value = ((LocalDateTime) getter.invoke(data, new Object[]{})).format(DATE_TIME_FORMAT);
-				} else if (field.getName().equals("rowNum")) {
-					rowNum = (int) value;
-					continue;
 				}
 				row.set(columnMap.get(field.getName()), value != null ? value : "");
 			} catch (IllegalAccessException | InvocationTargetException exception) {
 				throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
 			}
 		}
+		int rowNum = data.getRowNum();
 		gpaGoogleSheetsConnection.update(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum, row);
+
+		for (Field field : getAllFields()) {
+			LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
+			if (leftJoin == null) {
+				continue;
+			}
+
+			Method getter = getGetter(field.getName());
+			try {
+				List<GPAEntity> list = (List<GPAEntity>) getter.invoke(data, new Object[]{});
+				GoogleSheetsRepository<GPAEntity> joinRepository =
+					(GoogleSheetsRepository<GPAEntity>) applicationContext.getBean(getRepositoryName(leftJoin.targetClass()));
+				for (GPAEntity joinElement : list) {
+					Method setJoinColumnValue = getSetter(leftJoin.targetClass(), leftJoin.targetClass().getDeclaredField(leftJoin.joinColumn()));
+					setJoinColumnValue.invoke(joinElement, rowNum);
+					joinRepository.update(joinElement);
+				}
+			} catch (IllegalAccessException | InvocationTargetException | NoSuchFieldException exception) {
+				throw new SheetDataMappingException("연관관계 매핑에 실패하였습니다.", exception);
+			}
+		}
 	}
 
 	public void delete(T data) {
@@ -204,9 +243,9 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		}
 
 		try {
-			GoogleSheetsRepository<?> joinRepository =
-				(GoogleSheetsRepository<?>) applicationContext.getBean(getRepositoryName(leftJoin.targetClass()));
-			List<?> list = joinRepository.getAll().stream()
+			GoogleSheetsRepository<GPAEntity> joinRepository =
+				(GoogleSheetsRepository<GPAEntity>) applicationContext.getBean(getRepositoryName(leftJoin.targetClass()));
+			List<GPAEntity> list = joinRepository.getAll().stream()
 				.filter(joinElement -> getJoinColumnNum(joinElement, leftJoin.joinColumn()) == rowNum)
 				.collect(Collectors.toList());
 
@@ -247,6 +286,17 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		} catch (NoSuchMethodException exception) {
 			throw new SheetDataMappingException(
 				entityClass + "생성자 혹은 Setter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
+		}
+	}
+
+	private Method getSetter(Class<?> targetClass, Field field) {
+		try {
+			String setterName = "set" + field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+			return targetClass.getMethod(setterName, field.getType());
+
+		} catch (NoSuchMethodException exception) {
+			throw new SheetDataMappingException(
+				targetClass + "생성자 혹은 Setter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
 		}
 	}
 

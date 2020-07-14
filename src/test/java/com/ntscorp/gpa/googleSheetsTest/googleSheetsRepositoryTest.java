@@ -58,6 +58,9 @@ public class googleSheetsRepositoryTest {
 	void updateTest() {
 		Employee employee = employeeRepository.getByRowNum(2);
 		employee.setName("changed");
+		for (Asset asset : employee.getAssetList()) {
+			asset.setName("changedAsset");
+		}
 		employeeRepository.update(employee);
 	}
 
