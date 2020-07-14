@@ -17,6 +17,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -87,6 +88,17 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 			// range에 데이터가 없으면 append랑 같은 기
 			Sheets.Spreadsheets.Values.Update request = sheets.spreadsheets().values().update(SPREAD_SHEET_ID, range, valueRange);
 			request.setValueInputOption("USER_ENTERED");
+			request.execute();
+		} catch (IOException ioException) {
+			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
+		}
+	}
+
+	@Override
+	public void clear(String range) {
+		try {
+			Sheets.Spreadsheets.Values.Clear request =
+				sheets.spreadsheets().values().clear(SPREAD_SHEET_ID, range, new ClearValuesRequest());
 			request.execute();
 		} catch (IOException ioException) {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);

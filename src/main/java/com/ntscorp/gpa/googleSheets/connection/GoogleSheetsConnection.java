@@ -8,4 +8,7 @@ public interface GoogleSheetsConnection {
 	void add(String sheetName, List<Object> data);
 
 	void update(String range, List<Object> data);
+
+	void clear(String range);
+
 }

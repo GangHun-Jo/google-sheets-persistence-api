@@ -134,6 +134,17 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		gpaGoogleSheetsConnection.update(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum, row);
 	}
 
+	public void delete(T data) {
+		try {
+			Field field = entityClass.getSuperclass().getDeclaredField("rowNum");
+			Method getter = getGetter(field.getName());
+			int rowNum = (int) getter.invoke(data, new Object[]{});
+			gpaGoogleSheetsConnection.clear(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
+		} catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException exception) {
+			throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + entityClass + "]", exception);
+		}
+	}
+
 	// TODO : parseToEntity에 rowNum이 있는게 맞나
 	private T parseToEntity(List<Object> row, int rowNum) {
 

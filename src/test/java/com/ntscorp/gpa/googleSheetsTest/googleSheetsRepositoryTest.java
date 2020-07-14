@@ -10,7 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig;
-import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.*;
+import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.Asset;
+import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.Employee;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.EmployeeRepository;
 
 @SpringBootTest
@@ -58,5 +59,11 @@ public class googleSheetsRepositoryTest {
 		Employee employee = employeeRepository.getByRowNum(2);
 		employee.setName("changed");
 		employeeRepository.update(employee);
+	}
+
+	@Test
+	void deleteTest() {
+		Employee employee = employeeRepository.getByRowNum(2);
+		employeeRepository.delete(employee);
 	}
 }
