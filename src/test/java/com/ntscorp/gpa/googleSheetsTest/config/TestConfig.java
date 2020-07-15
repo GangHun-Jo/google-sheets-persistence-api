@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import com.ntscorp.gpa.googleSheets.GPAEntity;
 import com.ntscorp.gpa.googleSheets.GoogleSheetsRepository;
-import com.ntscorp.gpa.googleSheets.LeftJoin;
+import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 
 
 @TestConfiguration

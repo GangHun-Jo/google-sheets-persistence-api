@@ -25,6 +25,7 @@ import org.springframework.context.ApplicationContext;
 import com.google.common.reflect.TypeToken;
 import com.ntscorp.gpa.exception.SheetDataFormatException;
 import com.ntscorp.gpa.exception.SheetDataMappingException;
+import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 
 public abstract class GoogleSheetsRepository<T extends GPAEntity> {
