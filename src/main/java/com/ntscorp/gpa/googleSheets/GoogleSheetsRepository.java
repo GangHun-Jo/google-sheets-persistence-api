@@ -109,6 +109,8 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		}
 
 		int insertRowNum = gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
+		data.setRowNum(insertRowNum);
+		allList.add(data);
 		for (Field field : getAllFields()) {
 			LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
 			if (leftJoin == null) {
@@ -132,6 +134,7 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 	}
 
 	public void update(T data) {
+		allList.remove(data);
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
 		for (Field field : getAllFields()) {
 			if (columnMap.get(field.getName()) == null || field.getName().equals("rowNum")) {
@@ -165,23 +168,41 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 				for (GPAEntity joinElement : list) {
 					Method setJoinColumnValue = getSetter(leftJoin.targetClass(), leftJoin.targetClass().getDeclaredField(leftJoin.joinColumn()));
 					setJoinColumnValue.invoke(joinElement, rowNum);
-					joinRepository.update(joinElement);
+					if (joinElement.getRowNum() == 0) {
+						joinRepository.add(joinElement);
+					} else {
+						joinRepository.update(joinElement);
+					}
 				}
 			} catch (IllegalAccessException | InvocationTargetException | NoSuchFieldException exception) {
 				throw new SheetDataMappingException("연관관계 매핑에 실패하였습니다.", exception);
 			}
 		}
+		allList.add(data);
 	}
 
 	public void delete(T data) {
-		try {
-			Field field = entityClass.getSuperclass().getDeclaredField("rowNum");
+		int rowNum = data.getRowNum();
+		gpaGoogleSheetsConnection.clear(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
+		for (Field field : getAllFields()) {
+			LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
+			if (leftJoin == null) {
+				continue;
+			}
+
 			Method getter = getGetter(field.getName());
-			int rowNum = (int) getter.invoke(data, new Object[]{});
-			gpaGoogleSheetsConnection.clear(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
-		} catch (NoSuchFieldException | IllegalAccessException | InvocationTargetException exception) {
-			throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + entityClass + "]", exception);
+			try {
+				List<GPAEntity> list = (List<GPAEntity>) getter.invoke(data, new Object[]{});
+				GoogleSheetsRepository<GPAEntity> joinRepository =
+					(GoogleSheetsRepository<GPAEntity>) applicationContext.getBean(getRepositoryName(leftJoin.targetClass()));
+				for (GPAEntity joinElement : list) {
+					joinRepository.delete(joinElement);
+				}
+			} catch (IllegalAccessException | InvocationTargetException exception) {
+				throw new SheetDataMappingException("연관관계 매핑에 실패하였습니다.", exception);
+			}
 		}
+		allList.remove(data);
 	}
 
 	// TODO : parseToEntity에 rowNum이 있는게 맞나
@@ -198,18 +219,13 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 
 		for (Field field : entityClass.getDeclaredFields()) {
 			if (field.getAnnotation(LeftJoin.class) != null) {
-				// TODO : id 대신 rowNum, rowNum을 어떻게 가져올 것인가
 				leftJoin(instance, field, rowNum);
 			} else if (columnMap.get(field.getName()) != null && columnMap.get(field.getName()) < row.size()) {
 				setField(instance, field, row.get(columnMap.get(field.getName())));
 			}
 		}
 
-		try {
-			setField(instance, entityClass.getSuperclass().getDeclaredField("rowNum"), rowNum);
-		} catch (NoSuchFieldException exception) {
-			throw new SheetDataMappingException(entityClass + " rowNum 필드가 존재하지 않습니다.", exception);
-		}
+		instance.setRowNum(rowNum);
 		return instance;
 	}
 

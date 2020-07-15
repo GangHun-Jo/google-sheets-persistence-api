@@ -20,6 +20,8 @@ public class googleSheetsRepositoryTest {
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
+	@Autowired
+	private TestConfig.AssetRepository assetRepository;
 
 	@Test
 	public void getAllTest() {
@@ -61,12 +63,31 @@ public class googleSheetsRepositoryTest {
 		for (Asset asset : employee.getAssetList()) {
 			asset.setName("changedAsset");
 		}
+		Asset asset1 = new Asset();
+		asset1.setName("연관관계자산 추가");
+		asset1.setPurchaseDateTime(LocalDateTime.now());
+		employee.getAssetList().add(asset1);
+
 		employeeRepository.update(employee);
+		System.out.println(employeeRepository.getAll());
 	}
 
 	@Test
 	void deleteTest() {
 		Employee employee = employeeRepository.getByRowNum(2);
 		employeeRepository.delete(employee);
+
+		System.out.println(employeeRepository.getAll());
+	}
+
+	@Test
+	void deleteRelationMapping() {
+		Employee employee = employeeRepository.getByRowNum(2);
+		Asset deleteAsset = employee.getAssetList().get(0);
+
+		assetRepository.delete(deleteAsset);
+		employee.getAssetList().remove(deleteAsset);
+
+		System.out.println(employeeRepository.getByRowNum(2));
 	}
 }

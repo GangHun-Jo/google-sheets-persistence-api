@@ -7,6 +7,7 @@ public interface GoogleSheetsConnection {
 
 	// insert 한 rowNum을 return
 	int add(String sheetName, List<Object> data);
+
 	// update 한 rowNum을 return
 	int update(String range, List<Object> data);
 
