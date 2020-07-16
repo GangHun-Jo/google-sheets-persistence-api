@@ -38,7 +38,6 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 	private final Logger logger = LoggerFactory.getLogger(GoogleSheetsRepository.class);
 
 	private final Class<T> entityClass;
-	private List<T> allList;
 	private Map<String, Integer> columnMap;
 	private final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -51,28 +50,12 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 
 	@PostConstruct
 	private void initBean() {
-		if (entityClass.getSuperclass() != GPAEntity.class) {
-			throw new SheetDataMappingException(entityClass + " 해당 엔티티가 GPAEntity를 상속해야 합니다.");
-		}
-		// DI 이후에 sheet 하나를 얻어와서 공유하도록 한다.
-		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
-		updateColumnIndexMap(sheet);
-
-		allList = new ArrayList<>();
-		for (int rowNum = 1; rowNum < sheet.size(); rowNum++) {
-			try {
-				T instance = parseToEntity(sheet.get(rowNum), rowNum + 1);
-				allList.add(instance);
-			} catch (SheetDataFormatException | IndexOutOfBoundsException exception) {
-				logger.warn("해당 row는 엔티티 클래스로 parse에 실패하였습니다" + sheet.get(rowNum) + "rowNum:" + rowNum);
-			}
-		}
+		updateColumnIndexMap(gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!1:1").get(0));
 	}
 
-	private void updateColumnIndexMap(List<List<Object>> sheet) {
+	private void updateColumnIndexMap(List<Object> columnNames) {
 		columnMap = new HashMap<>();
 		try {
-			List<Object> columnNames = sheet.get(0);
 			for (int colNum = 0; colNum < columnNames.size(); colNum++) {
 				columnMap.put((String) columnNames.get(colNum), colNum);
 			}
@@ -82,6 +65,21 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 	}
 
 	public List<T> getAll() {
+		List<T> allList = new ArrayList<>();
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
+
+		for (int rowNum = 1; rowNum < sheet.size(); rowNum++) {
+			try {
+				if (sheet.get(rowNum).size() == 0) {
+					continue;
+				}
+				T instance = parseToEntity(sheet.get(rowNum), rowNum + 1);
+				allList.add(instance);
+			} catch (SheetDataFormatException | IndexOutOfBoundsException exception) {
+				logger.warn("해당 row는 엔티티 클래스로 parse에 실패하였습니다" + sheet.get(rowNum) + "rowNum:" + rowNum);
+			}
+		}
+
 		return allList;
 	}
 
@@ -111,7 +109,6 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 
 		int insertRowNum = gpaGoogleSheetsConnection.add(entityClass.getSimpleName(), row);
 		data.setRowNum(insertRowNum);
-		allList.add(data);
 		for (Field field : getAllFields()) {
 			LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
 			if (leftJoin == null) {
@@ -135,7 +132,6 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 	}
 
 	public void update(T data) {
-		allList.remove(data);
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
 		for (Field field : getAllFields()) {
 			if (columnMap.get(field.getName()) == null || field.getName().equals("rowNum")) {
@@ -179,7 +175,6 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 				throw new SheetDataMappingException("연관관계 매핑에 실패하였습니다.", exception);
 			}
 		}
-		allList.add(data);
 	}
 
 	public void delete(T data) {
@@ -203,7 +198,6 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 				throw new SheetDataMappingException("연관관계 매핑에 실패하였습니다.", exception);
 			}
 		}
-		allList.remove(data);
 	}
 
 	// TODO : parseToEntity에 rowNum이 있는게 맞나
