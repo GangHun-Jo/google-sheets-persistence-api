@@ -1,4 +1,4 @@
-package com.ntscorp.gpa.googleSheets;
+package com.ntscorp.gpa.googleSheets.entity;
 
 public abstract class GPAEntity {
 	private int rowNum;

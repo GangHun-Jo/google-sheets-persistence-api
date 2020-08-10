@@ -27,19 +27,18 @@ import com.ntscorp.gpa.exception.SheetDataFormatException;
 import com.ntscorp.gpa.exception.SheetDataMappingException;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
+import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 
-public abstract class GoogleSheetsRepository<T extends GPAEntity> {
+public abstract class GoogleSheetsRepository<T extends GPAEntity> implements SheetsRepository<T> {
 
+	private final Logger logger = LoggerFactory.getLogger(GoogleSheetsRepository.class);
+	private final Class<T> entityClass;
+	private final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	@Autowired
 	private GoogleSheetsConnection gpaGoogleSheetsConnection;
 	@Autowired
 	private ApplicationContext applicationContext;
-
-	private final Logger logger = LoggerFactory.getLogger(GoogleSheetsRepository.class);
-
-	private final Class<T> entityClass;
 	private Map<String, Integer> columnMap;
-	private final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	public GoogleSheetsRepository() {
 		// Generics의 type eraser를 보완하기 위해 런타임에도 클래스정보 저장
@@ -64,6 +63,7 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		}
 	}
 
+	@Override
 	public List<T> getAll() {
 		List<T> allList = new ArrayList<>();
 		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
@@ -83,12 +83,14 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		return allList;
 	}
 
+	@Override
 	public T getByRowNum(int rowNum) {
 		return parseToEntity(
 			gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum).get(0), rowNum
 		);
 	}
 
+	@Override
 	public void add(T data) {
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
 		for (Field field : getAllFields()) {
@@ -131,6 +133,7 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		}
 	}
 
+	@Override
 	public void update(T data) {
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
 		for (Field field : getAllFields()) {
@@ -177,6 +180,7 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> {
 		}
 	}
 
+	@Override
 	public void delete(T data) {
 		int rowNum = data.getRowNum();
 		gpaGoogleSheetsConnection.clear(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
