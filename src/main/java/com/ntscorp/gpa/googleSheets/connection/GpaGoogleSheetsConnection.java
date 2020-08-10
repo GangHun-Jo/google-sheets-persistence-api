@@ -5,6 +5,8 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -26,12 +28,14 @@ import com.ntscorp.gpa.exception.GoogleSheetConnectionException;
 @Component
 public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 
-	private final Sheets sheets;
+	private Sheets sheets;
 	@Value("${spread.sheet.id}")
 	private String SPREAD_SHEET_ID;
-	private final String GOOGLE_AUTH_KEY_PATH = "key.json";
+	@Value("${spread.sheet.key.path}")
+	private String GOOGLE_AUTH_KEY_PATH;
 
-	public GpaGoogleSheetsConnection() {
+	@PostConstruct
+	public void init() {
 		try {
 			HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
 			JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
