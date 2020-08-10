@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Import;
 
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.Asset;
+import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.AssetRepository;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.Employee;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.EmployeeRepository;
 
@@ -21,7 +22,7 @@ public class googleSheetsRepositoryTest {
 	@Autowired
 	private EmployeeRepository employeeRepository;
 	@Autowired
-	private TestConfig.AssetRepository assetRepository;
+	private AssetRepository assetRepository;
 
 	@Test
 	public void getAllTest() {
