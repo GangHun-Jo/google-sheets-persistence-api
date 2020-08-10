@@ -30,6 +30,11 @@ public class googleSheetsRepositoryTest {
 	}
 
 	@Test
+	void getByRowNumTest() {
+		System.out.println(employeeRepository.getByRowNum(2));
+	}
+
+	@Test
 	public void addTest() {
 
 		Asset asset1 = new Asset();
@@ -50,11 +55,8 @@ public class googleSheetsRepositoryTest {
 		employee.setAssetList(assetList);
 
 		employeeRepository.add(employee);
-	}
-
-	@Test
-	void getByRowNumTest() {
-		System.out.println(employeeRepository.getByRowNum(2));
+		System.out.println(employeeRepository.getAll());
+		System.out.println(assetRepository.getAll());
 	}
 
 	@Test
@@ -71,6 +73,7 @@ public class googleSheetsRepositoryTest {
 
 		employeeRepository.update(employee);
 		System.out.println(employeeRepository.getAll());
+		System.out.println(assetRepository.getAll());
 	}
 
 	@Test
@@ -79,6 +82,7 @@ public class googleSheetsRepositoryTest {
 		employeeRepository.delete(employee);
 
 		System.out.println(employeeRepository.getAll());
+		System.out.println(assetRepository.getAll());
 	}
 
 	@Test

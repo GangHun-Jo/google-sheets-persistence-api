@@ -4,8 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
+import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 import com.ntscorp.gpa.googleSheets.GoogleSheetsRepository;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
@@ -98,7 +101,7 @@ public class TestConfig {
 
 		@Override
 		public String toString() {
-			return String.join(" ", name, purchaseDateTime.toString());
+			return String.join(" ", Integer.toString(employeeId), name, purchaseDateTime.toString());
 		}
 	}
 
@@ -110,5 +113,11 @@ public class TestConfig {
 
 	@Repository(value = "employeeRepository")
 	public static class EmployeeRepository extends GoogleSheetsRepository<Employee> {
+	}
+
+	@Bean
+	@Primary
+	public GoogleSheetsConnection googleSheetsConnection() {
+		return new TestGoogleSheetsConnection();
 	}
 }
