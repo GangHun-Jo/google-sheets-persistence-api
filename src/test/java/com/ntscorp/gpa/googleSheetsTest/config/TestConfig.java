@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.stereotype.Repository;
 
-import com.ntscorp.gpa.googleSheets.GPAEntity;
+import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 import com.ntscorp.gpa.googleSheets.GoogleSheetsRepository;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 
