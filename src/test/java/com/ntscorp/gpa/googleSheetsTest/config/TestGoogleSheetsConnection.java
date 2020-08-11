@@ -1,11 +1,10 @@
 package com.ntscorp.gpa.googleSheetsTest.config;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.assertj.core.util.Arrays;
 
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 
@@ -15,18 +14,18 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 	private List<List<Object>> assetList = new ArrayList<>();
 
 	public TestGoogleSheetsConnection() {
-		employeeList.add(Arrays.asList(new String[]{"name", "age", "birthday"}));
-		employeeList.add(Arrays.asList(new String[]{"조강훈", "25", "1995-09-26 13:35"}));
-		employeeList.add(Arrays.asList(new String[]{"조강훈2", "26", "1996-09-26 13:35"}));
-		employeeList.add(Arrays.asList(new String[]{"조강훈3", "27", "1997-09-26 13:35"}));
+		employeeList.add(Arrays.asList("name", "age", "birthday"));
+		employeeList.add(Arrays.asList("조강훈", "25", "1995-09-26 13:35"));
+		employeeList.add(Arrays.asList("조강훈2", "26", "1996-09-26 13:35"));
+		employeeList.add(Arrays.asList("조강훈3", "27", "1997-09-26 13:35"));
 
-		assetList.add(Arrays.asList(new String[]{"employeeId", "name", "purchaseDateTime"}));
-		assetList.add(Arrays.asList(new String[]{"2", "맥북", "2020-08-10 13:35"}));
-		assetList.add(Arrays.asList(new String[]{"2", "마우스", "2020-08-10 13:45"}));
-		assetList.add(Arrays.asList(new String[]{"2", "의자", "2020-08-10 13:55"}));
-		assetList.add(Arrays.asList(new String[]{"3", "맥북2", "2020-08-11 13:35"}));
-		assetList.add(Arrays.asList(new String[]{"4", "맥북3", "2020-08-12 13:35"}));
-		assetList.add(Arrays.asList(new String[]{"4", "마우스3", "2020-08-12 13:45"}));
+		assetList.add(Arrays.asList("employeeId", "name", "purchaseDateTime"));
+		assetList.add(Arrays.asList("2", "맥북", "2020-08-10 13:35"));
+		assetList.add(Arrays.asList("2", "마우스", "2020-08-10 13:45"));
+		assetList.add(Arrays.asList("2", "의자", "2020-08-10 13:55"));
+		assetList.add(Arrays.asList("3", "맥북2", "2020-08-11 13:35"));
+		assetList.add(Arrays.asList("4", "맥북3", "2020-08-12 13:35"));
+		assetList.add(Arrays.asList("4", "마우스3", "2020-08-12 13:45"));
 	}
 
 	@Override
@@ -115,7 +114,15 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 		return employeeList;
 	}
 
+	public void setEmployeeList(List<List<Object>> employeeList) {
+		this.employeeList = employeeList;
+	}
+
 	public List<List<Object>> getAssetList() {
 		return assetList;
+	}
+
+	public void setAssetList(List<List<Object>> assetList) {
+		this.assetList = assetList;
 	}
 }
