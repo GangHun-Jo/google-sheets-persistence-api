@@ -4,15 +4,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
-import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 import com.ntscorp.gpa.googleSheets.GoogleSheetsRepository;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
+import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
+import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 
 
 @TestConfiguration
 public class TestConfig {
+
+	@Bean
+	@Primary
+	public GoogleSheetsConnection googleSheetsConnection() {
+		return new TestGoogleSheetsConnection();
+	}
 
 	public static class Employee extends GPAEntity {
 		private String name;
@@ -23,6 +32,13 @@ public class TestConfig {
 
 		public Employee() {
 			super();
+		}
+
+		public Employee(String name, int age, LocalDateTime birthday, List<Asset> assetList) {
+			this.name = name;
+			this.age = age;
+			this.birthday = birthday;
+			this.assetList = assetList;
 		}
 
 		public String getName() {
@@ -61,6 +77,17 @@ public class TestConfig {
 		public String toString() {
 			return String.join(" ", name, Integer.toString(age), birthday.toString(), assetList.toString());
 		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Employee) {
+				return this.name.equals(((Employee) obj).getName())
+					&& this.age == ((Employee) obj).getAge()
+					&& this.birthday.isEqual(((Employee) obj).getBirthday())
+					&& this.assetList.equals(((Employee) obj).getAssetList());
+			}
+			return false;
+		}
 	}
 
 	public static class Asset extends GPAEntity {
@@ -70,6 +97,12 @@ public class TestConfig {
 
 		public Asset() {
 			super();
+		}
+
+		public Asset(int employeeId, String name, LocalDateTime purchaseDateTime) {
+			this.employeeId = employeeId;
+			this.name = name;
+			this.purchaseDateTime = purchaseDateTime;
 		}
 
 		public int getEmployeeId() {
@@ -98,7 +131,17 @@ public class TestConfig {
 
 		@Override
 		public String toString() {
-			return String.join(" ", name, purchaseDateTime.toString());
+			return String.join(" ", Integer.toString(employeeId), name, purchaseDateTime.toString());
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Asset) {
+				return this.employeeId == ((Asset) obj).getEmployeeId()
+					&& this.name.equals(((Asset) obj).getName())
+					&& this.purchaseDateTime.isEqual(((Asset) obj).getPurchaseDateTime());
+			}
+			return false;
 		}
 	}
 
