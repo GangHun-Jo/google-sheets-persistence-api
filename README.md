@@ -37,13 +37,19 @@ String
 객체 그래프 탐색 가능  
 ![image](https://media.oss.navercorp.com/user/16792/files/af43ea80-c6b7-11ea-9a55-9687b399e5e2)
 
+- 쿼리용 클래스를 통한 조건절 조회  
+![image](https://media.oss.navercorp.com/user/16792/files/e4635b80-dd8f-11ea-82d3-3607fdfa1a84)  
+쿼리용 클래스를 생성하려면 빌드 툴에 annotation processor를 등록해야 한다.  
+
 - 구현 메소드  
 1) add(T instance)  
 2) delete(T instance)  
 3) update(T instance)  
 4) getByRowNum(int rowNum)  
 5) getAll()
-
+6) selectWhere(Predicate<T> condition)
+7) selectOneWhere(Predicate<T> condition)
+  
 ### Reference
 - 구글 시트 데이터 저장  
 빈이 생성되는 시점에 구글 시트에 해당 엔티티의 모든 데이터를 불러와서 파싱 후 저장한다
@@ -57,21 +63,3 @@ LeftJoin이 걸려있는 필드가 존재한다면 데이터를 불러올 때 Le
 따라서 연관관계를 수정하려면 joinColumn의 값을 수정하고 update 메소드를 수행하면 된다.
 또한 객체 지향의 관점에서 봤을 때 LeftJoin으로 저장된 collection에서도 해당 객체를 추가하거나 수정/삭제 해주는게 맞다.  
 ![image](https://media.oss.navercorp.com/user/16792/files/d995a800-c6b7-11ea-8df1-b374653f2adf)
-
-
-### 고민거리
-
-- Generics를 사용해서 런타임시에는 typeEraser로 인해 Generics를 통한 리플렉션을 사용할 수 없다.  
-방법을 찾아보니 구글에서 제공하는 typeToken을 통해 런타임시에도 Generics 정보를 사용할 수 있었다.  
-하지만 안정성을 보장할 수는 없는 것 같다.  
-가능한 해결방안으로는 빈의 생성자에 class 변수를 넘겨주는 방안을 생각해보았다.(하지만 이건 사용자입장에서 복잡해짐)
-
-- 현재 repository가 생성되면 @postconstruct를 통해 generics에 해당하는 엔티티의 시트 데이터를 모두 불러와서  
-엔티티 리스트로 변환한 것을 repository 빈에서 공유되도록 구현해두었다.  
-이렇게 구현한 이유는 조회 메소드가 새로 생겨날 때마다 connection을 통해 sheet 데이터를 매번 가져오는게 비용이 크다고 생각  
-하지만 이렇게 구현했을 때 데이터 양이 많아지면 메모리 비용이 커질거라고 생각됨
-
-- 조인의 시간복잡도  
-현재 leftJoin의 시간복잡도는 n * m이다.(getAll로 전체 데이터를 조회할 때)  
-join column과 같은지 모두 비교해야하기 때문임  
-인덱스와 비슷한 기능을 구현하면 빨라질 수 있을까  
