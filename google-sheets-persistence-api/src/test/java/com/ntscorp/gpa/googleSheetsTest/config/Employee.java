@@ -3,11 +3,9 @@ package com.ntscorp.gpa.googleSheetsTest.config;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.ntscorp.gpa.annotation.GPAQuery;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 
-@GPAQuery
 public class Employee extends GPAEntity {
 	private String name;
 	private int age;

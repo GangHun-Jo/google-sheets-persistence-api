@@ -2,14 +2,13 @@ package com.ntscorp.gpa.processor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -27,11 +26,21 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
-@SupportedAnnotationTypes({"com.ntscorp.gpa.annotation.GPAQuery"})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
-public class AutoGenerateProcessor extends AbstractProcessor {
+public class GPAQueryAnnotationProcessor extends AbstractProcessor {
 
-	private final String prefix = "G";
+	private static final String prefix = "Query";
+
+	@Override
+	public Set<String> getSupportedAnnotationTypes() {
+		Set<String> annotationSet = new HashSet<>();
+		annotationSet.add(GPAQuery.class.getCanonicalName());
+		return annotationSet;
+	}
+
+	@Override
+	public SourceVersion getSupportedSourceVersion() {
+		return SourceVersion.latestSupported();
+	}
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {

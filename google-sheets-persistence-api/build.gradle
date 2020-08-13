@@ -19,9 +19,9 @@ dependencies {
     compile 'com.google.api-client:google-api-client:1.30.9'
     compile 'com.google.apis:google-api-services-sheets:v4-rev581-1.25.0'
     compile 'com.google.auth:google-auth-library-oauth2-http:0.20.0'
-    compile 'com.ntscorp.gpa:generate-code-processor:1.0-SNAPSHOT'
-    annotationProcessor('com.ntscorp.gpa:generate-code-processor:1.0-SNAPSHOT')
-    testAnnotationProcessor('com.ntscorp.gpa:generate-code-processor:1.0-SNAPSHOT')
+    compile 'com.ntscorp.gpa:generate-query-class:1.0-SNAPSHOT'
+    annotationProcessor('com.ntscorp.gpa:generate-query-class:1.0-SNAPSHOT')
+    testAnnotationProcessor('com.ntscorp.gpa:generate-query-class:1.0-SNAPSHOT')
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
