@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -88,6 +89,16 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 		return parseToEntity(
 			gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum).get(0), rowNum
 		);
+	}
+
+	@Override
+	public List<T> selectWhere(Predicate<T> condition) {
+		return getAll().stream().filter(condition).collect(Collectors.toList());
+	}
+
+	@Override
+	public T selectOneWhere(Predicate<T> condition) {
+		return getAll().stream().filter(condition).findFirst().orElse(null);
 	}
 
 	@Override

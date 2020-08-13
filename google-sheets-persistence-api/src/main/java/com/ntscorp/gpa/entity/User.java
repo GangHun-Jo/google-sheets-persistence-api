@@ -3,9 +3,10 @@ package com.ntscorp.gpa.entity;
 import java.time.LocalDateTime;
 
 import com.ntscorp.gpa.annotation.GPAQuery;
+import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 
 @GPAQuery
-public class User {
+public class User extends GPAEntity {
 	private int id;
 	private String name;
 	private LocalDateTime birthDay;
