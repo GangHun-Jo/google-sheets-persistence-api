@@ -2,10 +2,8 @@ package com.ntscorp.gpa.googleSheetsTest.config;
 
 import java.time.LocalDateTime;
 
-import com.ntscorp.gpa.annotation.GPAQuery;
 import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
 
-@GPAQuery
 public class Asset extends GPAEntity {
 	private int employeeId;
 	private String name;

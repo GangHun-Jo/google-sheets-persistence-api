@@ -1,6 +1,9 @@
 package com.ntscorp.gpa.googleSheets.entity;
 
-public abstract class GPAEntity {
+import com.ntscorp.gpa.annotation.GPAQuery;
+
+@GPAQuery
+public class GPAEntity {
 	private int rowNum;
 
 	public int getRowNum() {
