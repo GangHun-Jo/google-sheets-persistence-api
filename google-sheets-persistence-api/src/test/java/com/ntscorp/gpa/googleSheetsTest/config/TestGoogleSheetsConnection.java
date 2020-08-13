@@ -6,9 +6,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
+import com.ntscorp.gpa.googleSheets.connection.GpaGoogleSheetsConnection;
 
 public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
+	@Autowired
+	private GpaGoogleSheetsConnection gpaGoogleSheetsConnection;
 
 	private List<List<Object>> employeeList = new ArrayList<>();
 	private List<List<Object>> assetList = new ArrayList<>();
@@ -59,7 +64,7 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 			result.add(assetList.get(Integer.parseInt(matcher.group(1)) - 1));
 			return result;
 		} else {
-			return new ArrayList<>();
+			return gpaGoogleSheetsConnection.getSheet(range);
 		}
 	}
 
@@ -73,8 +78,9 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 			Asset.class.getSimpleName())) {
 			assetList.add(data);
 			return assetList.size();
+		} else {
+			return gpaGoogleSheetsConnection.add(sheetName, data);
 		}
-		return 0;
 	}
 
 	@Override
@@ -99,8 +105,9 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 			}
 			assetList.set(Integer.parseInt(matcher.group(1)) - 1, data);
 			return Integer.parseInt(matcher.group(1));
+		} else {
+			return gpaGoogleSheetsConnection.update(range, data);
 		}
-		return -1;
 	}
 
 	@Override
@@ -123,6 +130,8 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 				return;
 			}
 			assetList.set(Integer.parseInt(matcher.group(1)) - 1, new ArrayList<>());
+		} else {
+			gpaGoogleSheetsConnection.clear(range);
 		}
 	}
 
