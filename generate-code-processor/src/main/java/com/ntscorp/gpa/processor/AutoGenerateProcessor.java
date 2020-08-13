@@ -31,7 +31,7 @@ import com.squareup.javapoet.TypeSpec;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class AutoGenerateProcessor extends AbstractProcessor {
 
-	private final String prefix = "G";
+	private static final String prefix = "Query";
 
 	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
