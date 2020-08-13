@@ -18,6 +18,7 @@ import com.ntscorp.gpa.googleSheetsTest.config.TestConfig;
 import com.ntscorp.gpa.googleSheetsTest.config.Asset;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.AssetRepository;
 import com.ntscorp.gpa.googleSheetsTest.config.Employee;
+import com.ntscorp.gpa.googleSheetsTest.config.GEmployee;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.EmployeeRepository;
 
 @SpringBootTest
@@ -124,5 +125,11 @@ public class googleSheetsRepositoryTest {
 		employeeList.get(0).getAssetList().remove(0);
 
 		assertEquals(employeeList.get(0), employeeRepository.getByRowNum(2));
+	}
+
+	@Test
+	void selectWhereTest() {
+		GEmployee query = new GEmployee();
+		assertEquals(employeeList.get(0), employeeRepository.selectOneWhere(query.name("조강훈").build()));
 	}
 }

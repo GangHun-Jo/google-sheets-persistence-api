@@ -58,7 +58,10 @@ public class AutoGenerateProcessor extends AbstractProcessor {
 	private void generateClass(Element element) throws Exception {
 		ParameterizedTypeName predicateType = ParameterizedTypeName.get(
 			ClassName.get(Predicate.class), ClassName.get(getPackage(element), element.getSimpleName().toString()));
-		FieldSpec predicateField = FieldSpec.builder(predicateType, "condition", Modifier.PRIVATE).build();
+		FieldSpec predicateField = FieldSpec
+			.builder(predicateType, "condition", Modifier.PRIVATE)
+			.initializer("elem -> true")
+			.build();
 
 		List<MethodSpec> methodList = new ArrayList<>();
 		for (VariableElement fieldElement : ElementFilter.fieldsIn(element.getEnclosedElements())) {
