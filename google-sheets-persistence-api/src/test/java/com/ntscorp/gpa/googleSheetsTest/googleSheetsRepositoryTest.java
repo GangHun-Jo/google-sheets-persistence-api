@@ -15,9 +15,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig;
-import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.Asset;
+import com.ntscorp.gpa.googleSheetsTest.config.Asset;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.AssetRepository;
-import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.Employee;
+import com.ntscorp.gpa.googleSheetsTest.config.Employee;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.EmployeeRepository;
 
 @SpringBootTest

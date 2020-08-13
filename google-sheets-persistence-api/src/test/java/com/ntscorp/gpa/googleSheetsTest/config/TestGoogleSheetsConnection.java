@@ -30,12 +30,16 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 
 	@Override
 	public List<List<Object>> getSheet(String range) {
-		if (range.equals(TestConfig.Employee.class.getSimpleName())) {
+		if (range.equals(
+			Employee.class.getSimpleName())) {
 			return employeeList;
-		} else if (range.equals(TestConfig.Asset.class.getSimpleName())) {
+		} else if (range.equals(
+			Asset.class.getSimpleName())) {
 			return assetList;
-		} else if (range.matches(TestConfig.Employee.class.getSimpleName() + "![0-9]:[0-9]")) {
-			Pattern pattern = Pattern.compile(TestConfig.Employee.class.getSimpleName() + "!([0-9]):([0-9])");
+		} else if (range.matches(
+			Employee.class.getSimpleName() + "![0-9]:[0-9]")) {
+			Pattern pattern = Pattern.compile(
+				Employee.class.getSimpleName() + "!([0-9]):([0-9])");
 			Matcher matcher = pattern.matcher(range);
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return new ArrayList<>();
@@ -43,8 +47,10 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 			List<List<Object>> result = new ArrayList<>();
 			result.add(employeeList.get(Integer.parseInt(matcher.group(1)) - 1));
 			return result;
-		} else if (range.matches(TestConfig.Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
-			Pattern pattern = Pattern.compile(TestConfig.Asset.class.getSimpleName() + "!([0-9]):([0-9])");
+		} else if (range.matches(
+			Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
+			Pattern pattern = Pattern.compile(
+				Asset.class.getSimpleName() + "!([0-9]):([0-9])");
 			Matcher matcher = pattern.matcher(range);
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return new ArrayList<>();
@@ -59,10 +65,12 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 
 	@Override
 	public int add(String sheetName, List<Object> data) {
-		if (sheetName.equals(TestConfig.Employee.class.getSimpleName())) {
+		if (sheetName.equals(
+			Employee.class.getSimpleName())) {
 			employeeList.add(data);
 			return employeeList.size();
-		} else if (sheetName.equals(TestConfig.Asset.class.getSimpleName())) {
+		} else if (sheetName.equals(
+			Asset.class.getSimpleName())) {
 			assetList.add(data);
 			return assetList.size();
 		}
@@ -71,16 +79,20 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 
 	@Override
 	public int update(String range, List<Object> data) {
-		if (range.matches(TestConfig.Employee.class.getSimpleName() + "![0-9]:[0-9]")) {
-			Pattern pattern = Pattern.compile(TestConfig.Employee.class.getSimpleName() + "!([0-9]):([0-9])");
+		if (range.matches(
+			Employee.class.getSimpleName() + "![0-9]:[0-9]")) {
+			Pattern pattern = Pattern.compile(
+				Employee.class.getSimpleName() + "!([0-9]):([0-9])");
 			Matcher matcher = pattern.matcher(range);
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return -1;
 			}
 			employeeList.set(Integer.parseInt(matcher.group(1)) - 1, data);
 			return Integer.parseInt(matcher.group(1));
-		} else if (range.matches(TestConfig.Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
-			Pattern pattern = Pattern.compile(TestConfig.Asset.class.getSimpleName() + "!([0-9]):([0-9])");
+		} else if (range.matches(
+			Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
+			Pattern pattern = Pattern.compile(
+				Asset.class.getSimpleName() + "!([0-9]):([0-9])");
 			Matcher matcher = pattern.matcher(range);
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return -1;
@@ -93,15 +105,19 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 
 	@Override
 	public void clear(String range) {
-		if (range.matches(TestConfig.Employee.class.getSimpleName() + "![0-9]:[0-9]")) {
-			Pattern pattern = Pattern.compile(TestConfig.Employee.class.getSimpleName() + "!([0-9]):([0-9])");
+		if (range.matches(
+			Employee.class.getSimpleName() + "![0-9]:[0-9]")) {
+			Pattern pattern = Pattern.compile(
+				Employee.class.getSimpleName() + "!([0-9]):([0-9])");
 			Matcher matcher = pattern.matcher(range);
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return;
 			}
 			employeeList.set(Integer.parseInt(matcher.group(1)) - 1, new ArrayList<>());
-		} else if (range.matches(TestConfig.Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
-			Pattern pattern = Pattern.compile(TestConfig.Asset.class.getSimpleName() + "!([0-9]):([0-9])");
+		} else if (range.matches(
+			Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
+			Pattern pattern = Pattern.compile(
+				Asset.class.getSimpleName() + "!([0-9]):([0-9])");
 			Matcher matcher = pattern.matcher(range);
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return;
