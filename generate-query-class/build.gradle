@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.ntscorp.gpa'
-version '1.0-SNAPSHOT'
+version '0.0.1'
 
 repositories {
     mavenCentral()
@@ -17,7 +17,6 @@ dependencies {
 
 publishing {
     publications {
-        // 해당 정보를 입력하여 타 프로젝트에서 해당 라이브러리를 참조한다.
         maven(MavenPublication) {
             from components.java
         }

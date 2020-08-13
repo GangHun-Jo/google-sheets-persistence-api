@@ -2,10 +2,11 @@ plugins {
     id 'org.springframework.boot' version '2.3.1.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
     id 'java'
+    id 'maven-publish'
 }
 
-group = 'com.ntscorp'
-version = '0.0.1-SNAPSHOT'
+group = 'com.ntscorp.gpa'
+version = '0.0.1'
 sourceCompatibility = '11'
 
 repositories {
@@ -19,9 +20,9 @@ dependencies {
     compile 'com.google.api-client:google-api-client:1.30.9'
     compile 'com.google.apis:google-api-services-sheets:v4-rev581-1.25.0'
     compile 'com.google.auth:google-auth-library-oauth2-http:0.20.0'
-    compile 'com.ntscorp.gpa:generate-query-class:1.0-SNAPSHOT'
-    annotationProcessor('com.ntscorp.gpa:generate-query-class:1.0-SNAPSHOT')
-    testAnnotationProcessor('com.ntscorp.gpa:generate-query-class:1.0-SNAPSHOT')
+    compile 'com.ntscorp.gpa:generate-query-class:0.0.1'
+    annotationProcessor('com.ntscorp.gpa:generate-query-class:0.0.1')
+    testAnnotationProcessor('com.ntscorp.gpa:generate-query-class:0.0.1')
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -37,4 +38,16 @@ sourceSets {
             srcDir "test"
         }
     }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+jar {
+    enabled = true
 }
