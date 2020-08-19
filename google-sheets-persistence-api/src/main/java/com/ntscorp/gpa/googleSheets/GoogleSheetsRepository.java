@@ -86,8 +86,12 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 
 	@Override
 	public T getByRowNum(int rowNum) {
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
+		if (sheet == null || sheet.isEmpty()) {
+			return null;
+		}
 		return parseToEntity(
-			gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum).get(0), rowNum
+			sheet.get(0), rowNum
 		);
 	}
 
@@ -218,6 +222,9 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	// TODO : parseToEntity에 rowNum이 있는게 맞나
 	private T parseToEntity(List<Object> row, int rowNum) {
 
+		if (row == null || row.isEmpty()) {
+			return null;
+		}
 		T instance;
 		try {
 			instance = entityClass.getConstructor().newInstance();

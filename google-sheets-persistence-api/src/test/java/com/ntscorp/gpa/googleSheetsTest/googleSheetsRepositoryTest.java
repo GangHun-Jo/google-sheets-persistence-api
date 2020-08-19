@@ -132,4 +132,12 @@ public class googleSheetsRepositoryTest {
 		QueryEmployee query = new QueryEmployee();
 		assertEquals(employeeList.get(0), employeeRepository.selectOneWhere(query.name("조강훈").build()));
 	}
+
+	@Test
+	void getEmptyDataTest() {
+		assertNull(employeeRepository.getByRowNum(50));
+		
+		QueryEmployee query = new QueryEmployee();
+		assertNull(employeeRepository.selectOneWhere(query.name("조강훈100").build()));
+	}
 }
