@@ -49,8 +49,12 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return new ArrayList<>();
 			}
+			int rowNum = Integer.parseInt(matcher.group(1));
+			if (rowNum <= 0) {
+				return null;
+			}
 			List<List<Object>> result = new ArrayList<>();
-			result.add(employeeList.get(Integer.parseInt(matcher.group(1)) - 1));
+			result.add(employeeList.get(rowNum - 1));
 			return result;
 		} else if (range.matches(
 			Asset.class.getSimpleName() + "![0-9]:[0-9]")) {
@@ -60,8 +64,12 @@ public class TestGoogleSheetsConnection implements GoogleSheetsConnection {
 			if (!matcher.matches() || Integer.parseInt(matcher.group(1)) != Integer.parseInt(matcher.group(2))) {
 				return new ArrayList<>();
 			}
+			int rowNum = Integer.parseInt(matcher.group(1));
+			if (rowNum <= 0) {
+				return null;
+			}
 			List<List<Object>> result = new ArrayList<>();
-			result.add(assetList.get(Integer.parseInt(matcher.group(1)) - 1));
+			result.add(assetList.get(rowNum - 1));
 			return result;
 		} else {
 			return gpaGoogleSheetsConnection.getSheet(range);
