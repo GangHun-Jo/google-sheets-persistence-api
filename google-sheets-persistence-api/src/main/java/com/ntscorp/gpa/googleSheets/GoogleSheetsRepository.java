@@ -50,7 +50,11 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 
 	@PostConstruct
 	private void initBean() {
-		updateColumnIndexMap(gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!1:1").get(0));
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!1:1");
+		if (sheet == null || sheet.isEmpty()) {
+			throw new SheetDataMappingException("Column Header가 존재하지 않습니다.");
+		}
+		updateColumnIndexMap(sheet.get(0));
 	}
 
 	private void updateColumnIndexMap(List<Object> columnNames) {
