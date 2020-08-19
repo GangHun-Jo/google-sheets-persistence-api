@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 
+import com.ntscorp.gpa.exception.SheetDataMappingException;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig;
 import com.ntscorp.gpa.googleSheetsTest.config.Asset;
 import com.ntscorp.gpa.googleSheetsTest.config.TestConfig.AssetRepository;
@@ -131,5 +132,23 @@ public class googleSheetsRepositoryTest {
 	void selectWhereTest() {
 		QueryEmployee query = new QueryEmployee();
 		assertEquals(employeeList.get(0), employeeRepository.selectOneWhere(query.name("조강훈").build()));
+	}
+
+	@Test
+	void getEmptyDataTest() {
+		assertNull(employeeRepository.getByRowNum(50));
+
+		QueryEmployee query = new QueryEmployee();
+		assertNull(employeeRepository.selectOneWhere(query.name("조강훈100").build()));
+	}
+
+	@Test
+	void inValidUpdateTest() {
+		Employee employee = new Employee();
+		employee.setRowNum(100);
+		employee.setAge(28);
+		employee.setName("이름예시");
+		employee.setBirthday(LocalDateTime.of(2020,3,1,12,0));
+		assertThrows(SheetDataMappingException.class, () -> {employeeRepository.update(employee);});
 	}
 }

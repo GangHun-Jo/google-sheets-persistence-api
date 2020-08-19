@@ -7,6 +7,8 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,8 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 	private String SPREAD_SHEET_ID;
 	@Value("${spread.sheet.key.path}")
 	private String GOOGLE_AUTH_KEY_PATH;
+
+	private Logger logger = LoggerFactory.getLogger(GpaGoogleSheetsConnection.class);
 
 	@PostConstruct
 	public void init() {
@@ -61,7 +65,9 @@ public class GpaGoogleSheetsConnection implements GoogleSheetsConnection {
 				.get(SPREAD_SHEET_ID, range);
 			return request.execute().getValues();
 		} catch (GoogleJsonResponseException exception) {
-			throw new IllegalArgumentException("잘못된 range 입니다:[" + range + "]", exception);
+			logger.debug("잘못된 range 입니다:[" + range + "]");
+			logger.debug(exception.toString());
+			return null;
 		} catch (IOException ioException) {
 			throw new GoogleSheetConnectionException("구글 독스 연결에 실패했습니다.", ioException);
 		}

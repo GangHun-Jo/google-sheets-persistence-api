@@ -50,7 +50,11 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 
 	@PostConstruct
 	private void initBean() {
-		updateColumnIndexMap(gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!1:1").get(0));
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!1:1");
+		if (sheet == null || sheet.isEmpty()) {
+			throw new SheetDataMappingException("Column Header가 존재하지 않습니다.");
+		}
+		updateColumnIndexMap(sheet.get(0));
 	}
 
 	private void updateColumnIndexMap(List<Object> columnNames) {
@@ -86,8 +90,12 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 
 	@Override
 	public T getByRowNum(int rowNum) {
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
+		if (sheet == null || sheet.isEmpty()) {
+			return null;
+		}
 		return parseToEntity(
-			gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum).get(0), rowNum
+			sheet.get(0), rowNum
 		);
 	}
 
@@ -146,6 +154,10 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 
 	@Override
 	public void update(T data) {
+		int rowNum = data.getRowNum();
+		if (this.getByRowNum(rowNum) == null) {
+			throw new SheetDataMappingException("rowNum :[" + rowNum + "]에 해당하는 데이터가 존재하지 않습니다");
+		}
 		List<Object> row = new ArrayList<>(Collections.nCopies(columnMap.size(), ""));
 		for (Field field : getAllFields()) {
 			if (columnMap.get(field.getName()) == null || field.getName().equals("rowNum")) {
@@ -162,7 +174,6 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 				throw new SheetDataMappingException(entityClass + "Getter의 이름이나 파라미터가 맞지 않습니다.[" + field + "]", exception);
 			}
 		}
-		int rowNum = data.getRowNum();
 		gpaGoogleSheetsConnection.update(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum, row);
 
 		for (Field field : getAllFields()) {
@@ -194,6 +205,9 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	@Override
 	public void delete(T data) {
 		int rowNum = data.getRowNum();
+		if (this.getByRowNum(rowNum) == null) {
+			throw new SheetDataMappingException("rowNum :[" + rowNum + "]에 해당하는 데이터가 존재하지 않습니다");
+		}
 		gpaGoogleSheetsConnection.clear(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
 		for (Field field : getAllFields()) {
 			LeftJoin leftJoin = field.getAnnotation(LeftJoin.class);
@@ -218,6 +232,9 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	// TODO : parseToEntity에 rowNum이 있는게 맞나
 	private T parseToEntity(List<Object> row, int rowNum) {
 
+		if (row == null || row.isEmpty()) {
+			return null;
+		}
 		T instance;
 		try {
 			instance = entityClass.getConstructor().newInstance();
