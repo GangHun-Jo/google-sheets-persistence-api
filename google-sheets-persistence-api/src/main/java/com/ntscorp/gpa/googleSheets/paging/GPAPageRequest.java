@@ -3,6 +3,7 @@ package com.ntscorp.gpa.googleSheets.paging;
 public class GPAPageRequest {
 	private int pageNum;
 	private int size;
+	private GPASort sort;
 
 	public GPAPageRequest() {
 	}
@@ -13,6 +14,20 @@ public class GPAPageRequest {
 		if (pageNum < 0 || size <= 0) {
 			throw new RuntimeException("잘못된 PageRequest 입니다{pageNum:" + pageNum + ", size:" + size + "}");
 		}
+	}
+
+	public GPAPageRequest(int pageNum, int size, GPASort sort) {
+		this.pageNum = pageNum;
+		this.size = size;
+		this.sort = sort;
+	}
+
+	public GPASort getSort() {
+		return sort;
+	}
+
+	public void setSort(GPASort sort) {
+		this.sort = sort;
 	}
 
 	public int getStartIndex() {

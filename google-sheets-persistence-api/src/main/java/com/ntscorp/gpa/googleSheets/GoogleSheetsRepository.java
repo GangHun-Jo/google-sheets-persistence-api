@@ -103,6 +103,7 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 			allList.stream()
 				.skip(pageRequest.getStartIndex())
 				.limit(pageRequest.getSize())
+				.sorted((T a, T b) -> pageRequest.getSort() != null ? pageRequest.getSort().compare(a, b) : 0)
 				.collect(Collectors.toList())
 		);
 	}
@@ -137,6 +138,7 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 				.filter(condition)
 				.skip(pageRequest.getStartIndex())
 				.limit(pageRequest.getSize())
+				.sorted((T a, T b) -> pageRequest.getSort() != null ? pageRequest.getSort().compare(a, b) : 0)
 				.collect(Collectors.toList())
 		);
 	}
