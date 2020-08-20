@@ -29,6 +29,8 @@ import com.ntscorp.gpa.exception.SheetDataMappingException;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
+import com.ntscorp.gpa.googleSheets.paging.GPAPage;
+import com.ntscorp.gpa.googleSheets.paging.GPAPageRequest;
 
 public abstract class GoogleSheetsRepository<T extends GPAEntity> implements SheetsRepository<T> {
 
@@ -89,6 +91,24 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	}
 
 	@Override
+	public GPAPage<T> getAll(GPAPageRequest pageRequest) {
+		List<T> allList = this.getAll();
+		int totalPage = (int) Math.ceil((allList.size() + 0.0) / pageRequest.getSize());
+		return new GPAPage<T>(
+			pageRequest.getPageNum(),
+			pageRequest.getSize(),
+			allList.size(),
+			totalPage,
+			pageRequest.getPageNum() < totalPage - 1,
+			allList.stream()
+				.skip(pageRequest.getStartIndex())
+				.limit(pageRequest.getSize())
+				.sorted((T a, T b) -> pageRequest.getSort() != null ? pageRequest.getSort().compare(a, b) : 0)
+				.collect(Collectors.toList())
+		);
+	}
+
+	@Override
 	public T getByRowNum(int rowNum) {
 		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
 		if (sheet == null || sheet.isEmpty()) {
@@ -102,6 +122,25 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	@Override
 	public List<T> selectWhere(Predicate<T> condition) {
 		return getAll().stream().filter(condition).collect(Collectors.toList());
+	}
+
+	@Override
+	public GPAPage<T> selectWhere(Predicate<T> condition, GPAPageRequest pageRequest) {
+		List<T> allList = this.getAll().stream().filter(condition).collect(Collectors.toList());
+		int totalPage = (int) Math.ceil((allList.size() + 0.0) / pageRequest.getSize());
+		return new GPAPage<T>(
+			pageRequest.getPageNum(),
+			pageRequest.getSize(),
+			allList.size(),
+			totalPage,
+			pageRequest.getPageNum() < totalPage - 1,
+			allList.stream()
+				.filter(condition)
+				.skip(pageRequest.getStartIndex())
+				.limit(pageRequest.getSize())
+				.sorted((T a, T b) -> pageRequest.getSort() != null ? pageRequest.getSort().compare(a, b) : 0)
+				.collect(Collectors.toList())
+		);
 	}
 
 	@Override
