@@ -10,6 +10,9 @@ public class GPAPageRequest {
 	public GPAPageRequest(int pageNum, int size) {
 		this.pageNum = pageNum;
 		this.size = size;
+		if (pageNum < 0 || size <= 0) {
+			throw new RuntimeException("잘못된 PageRequest 입니다{pageNum:" + pageNum + ", size:" + size + "}");
+		}
 	}
 
 	public int getStartIndex() {
