@@ -41,13 +41,20 @@ String
 ![image](https://media.oss.navercorp.com/user/16792/files/e4635b80-dd8f-11ea-82d3-3607fdfa1a84)  
 쿼리용 클래스를 생성하려면 빌드 툴에 annotation processor를 등록해야 한다.  
 
+- pageRequest를 통한 페이징 처리  
+![image](https://media.oss.navercorp.com/user/16792/files/a6b58400-e2f5-11ea-9f6a-ce731122aa05)  
+결과 값  
+![image](https://media.oss.navercorp.com/user/16792/files/e8dec580-e2f5-11ea-9584-fd38d54692e0)  
+
 - 구현 메소드  
 1) add(T instance)  
 2) delete(T instance)  
 3) update(T instance)  
 4) getByRowNum(int rowNum)  
 5) getAll()
-6) selectWhere(Predicate<T> condition)
+6) getAll(GPAPageRequest pageRequest)
+7) selectWhere(Predicate<T> condition)
+8) selectWhere(Predicate<T> condition, GPAPageRequest pageRequest)
 7) selectOneWhere(Predicate<T> condition)
   
 ### Reference
