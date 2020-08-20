@@ -29,6 +29,7 @@ import com.ntscorp.gpa.exception.SheetDataMappingException;
 import com.ntscorp.gpa.googleSheets.annotation.LeftJoin;
 import com.ntscorp.gpa.googleSheets.connection.GoogleSheetsConnection;
 import com.ntscorp.gpa.googleSheets.entity.GPAEntity;
+import com.ntscorp.gpa.googleSheets.paging.GPAPageRequest;
 
 public abstract class GoogleSheetsRepository<T extends GPAEntity> implements SheetsRepository<T> {
 
@@ -89,6 +90,29 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	}
 
 	@Override
+	public List<T> getAll(GPAPageRequest pageRequest) {
+		List<T> allList = new ArrayList<>();
+		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName());
+
+		for (int rowNum = 1; rowNum < sheet.size(); rowNum++) {
+			if (!(pageRequest.getStartIndex() <= rowNum - 1 && rowNum - 1 < pageRequest.getEndIndex())) {
+				continue;
+			}
+			try {
+				if (sheet.get(rowNum).size() == 0) {
+					continue;
+				}
+				T instance = parseToEntity(sheet.get(rowNum), rowNum + 1);
+				allList.add(instance);
+			} catch (SheetDataFormatException | IndexOutOfBoundsException exception) {
+				logger.warn("해당 row는 엔티티 클래스로 parse에 실패하였습니다" + sheet.get(rowNum) + "rowNum:" + rowNum);
+			}
+		}
+
+		return allList;
+	}
+
+	@Override
 	public T getByRowNum(int rowNum) {
 		List<List<Object>> sheet = gpaGoogleSheetsConnection.getSheet(entityClass.getSimpleName() + "!" + rowNum + ":" + rowNum);
 		if (sheet == null || sheet.isEmpty()) {
@@ -102,6 +126,15 @@ public abstract class GoogleSheetsRepository<T extends GPAEntity> implements She
 	@Override
 	public List<T> selectWhere(Predicate<T> condition) {
 		return getAll().stream().filter(condition).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<T> selectWhere(Predicate<T> condition, GPAPageRequest pageRequest) {
+		return getAll().stream()
+			.filter(condition)
+			.skip(pageRequest.getStartIndex())
+			.limit(pageRequest.getSize())
+			.collect(Collectors.toList());
 	}
 
 	@Override
