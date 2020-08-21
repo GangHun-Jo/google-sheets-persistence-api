@@ -17,6 +17,9 @@ public class GPASort<T> {
 	}
 
 	public int compare(T a, T b) {
+		if (!a.getClass().equals(b.getClass())) {
+			return 0;
+		}
 
 		int result;
 		Class<T> entityClass = (Class<T>) a.getClass();
