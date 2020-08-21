@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import com.ntscorp.gpa.exception.SheetDataMappingException;
 
-public class GPASort<T> {
+public class GPASort {
 	private String fieldName;
 	private GPASortType type;
 
@@ -16,7 +16,7 @@ public class GPASort<T> {
 
 	}
 
-	public int compare(T a, T b) {
+	public <T> int compare(T a, T b) {
 		if (!a.getClass().equals(b.getClass())) {
 			return 0;
 		}
