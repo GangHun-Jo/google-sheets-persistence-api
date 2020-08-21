@@ -50,7 +50,7 @@ public class GPASort {
 			String getterName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
 			return targetClass.getMethod(getterName);
 		} catch (NoSuchMethodException exception) {
-			throw new SheetDataMappingException(targetClass + " Getter의 이름이나 파라미터가 맞지 않습니다. ", exception);
+			throw new SheetDataMappingException(fieldName + " Getter의 이름이나 파라미터가 맞지 않습니다. ", exception);
 		}
 	}
 
