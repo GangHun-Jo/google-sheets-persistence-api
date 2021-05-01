@@ -7,6 +7,9 @@
 - 운영팀이 DB에 대한 지식이 부족한데, 데이터에 직접 접근할 필요가 많은 서비스를 개발할 때
 - DB에 저장하기에는 데이터 양이 적은 경우(DB를 운영하는 비용이 부담스러울 때)
 
+### 로컬 세팅
+https://github.com/GangHun-Jo/google-sheets-persistence-api/blob/master/LOCAL_SETTING.md  
+  
 ### 사용방법 및 샘플
 - 엔티티 매핑  
 엔티티 클래스는 GPAEntity 클래스를 상속해야 합니다.(rowNum)  
