@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group 'com.ntscorp.gpa'
+group 'com.conor.gpa'
 version '0.0.1'
 
 repositories {
