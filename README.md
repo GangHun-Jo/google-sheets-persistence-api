@@ -15,13 +15,13 @@
 필드의 타입과 셀 데이터 타입이 일치하지 않으면 예외를 던집니다.  
 엔티티 클래스의 생성자는 NoArgsConstructor가 존재해야 합니다.  
 getter와 setter는 보편적인 방식대로 네이밍(get/set + 필드이름:첫글자대문자)  
-![image](https://media.oss.navercorp.com/user/16792/files/25941d00-c6b7-11ea-864e-28710db38380)  
-![image](https://media.oss.navercorp.com/user/16792/files/61c77d80-c6b7-11ea-9ade-037769db1eb7)
+![image](https://user-images.githubusercontent.com/47145210/116774955-0f671a00-aa9b-11eb-8b75-c851ef181a7f.png). 
+![image](https://user-images.githubusercontent.com/47145210/116774956-12620a80-aa9b-11eb-856e-349ccb5b4752.png). 
 
 - repository생성 및 사용  
 Repository 이름은 엔티티클래스이름 + "Repository"
 추가하고자 하는 메소드가 있으면 repository에 추가
-![image](https://media.oss.navercorp.com/user/16792/files/99cec080-c6b7-11ea-86c7-b4992f53bb6c)
+![image](https://user-images.githubusercontent.com/47145210/116774958-14c46480-aa9b-11eb-83c2-114a625ce498.png). 
 
 - 지원하는 필드의 타입  
 int  
@@ -35,16 +35,17 @@ String
 조인하려고 하는 targetClass의 repository component도 존재해야한다.  
 지연 로딩 기능 없이 leftjoin이 있으면 조회시에 한꺼번에 조회  
 객체 그래프 탐색 가능  
-![image](https://media.oss.navercorp.com/user/16792/files/af43ea80-c6b7-11ea-9a55-9687b399e5e2)
+![image](https://user-images.githubusercontent.com/47145210/116774962-1beb7280-aa9b-11eb-891a-4d561da5b3f1.png). 
 
 - 쿼리용 클래스를 통한 조건절 조회  
-![image](https://media.oss.navercorp.com/user/16792/files/e4635b80-dd8f-11ea-82d3-3607fdfa1a84)  
+![image](https://user-images.githubusercontent.com/47145210/116774964-1db53600-aa9b-11eb-8a35-13004e1fa74f.png). 
 쿼리용 클래스를 생성하려면 빌드 툴에 annotation processor를 등록해야 한다.  
 
 - pageRequest를 통한 페이징 처리  
-![image](https://media.oss.navercorp.com/user/16792/files/a6b58400-e2f5-11ea-9f6a-ce731122aa05)  
+![image](https://user-images.githubusercontent.com/47145210/116774969-20179000-aa9b-11eb-9ef9-e94455bf1994.png). 
 결과 값  
-![image](https://media.oss.navercorp.com/user/16792/files/e8dec580-e2f5-11ea-9584-fd38d54692e0)  
+![image](https://user-images.githubusercontent.com/47145210/116775018-5e14b400-aa9b-11eb-87d9-39e50d748d78.png). 
+
 
 - 구현 메소드  
 1) add(T instance)  
@@ -69,4 +70,4 @@ LeftJoin이 걸려있는 필드가 존재한다면 데이터를 불러올 때 Le
 현재 join-column은 각 엔티티의 rowNum을 id로 하여 조인한다.
 따라서 연관관계를 수정하려면 joinColumn의 값을 수정하고 update 메소드를 수행하면 된다.
 또한 객체 지향의 관점에서 봤을 때 LeftJoin으로 저장된 collection에서도 해당 객체를 추가하거나 수정/삭제 해주는게 맞다.  
-![image](https://media.oss.navercorp.com/user/16792/files/d995a800-c6b7-11ea-8df1-b374653f2adf)
+![image](https://user-images.githubusercontent.com/47145210/116774971-23128080-aa9b-11eb-862a-29b61bf6503c.png)
