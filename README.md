@@ -61,7 +61,7 @@ String
 8) selectWhere(Predicate<T> condition, GPAPageRequest pageRequest)
 7) selectOneWhere(Predicate<T> condition)
   
-### Reference
+### 참고
 - 구글 시트 데이터 저장  
 빈이 생성되는 시점에 구글 시트에 해당 엔티티의 모든 데이터를 불러와서 파싱 후 저장한다
 따라서 getAll() 메소드를 실행하면 시트에 request를 보내지 않고 저장된 데이터를 반환한다.
